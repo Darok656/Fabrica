@@ -5,7 +5,12 @@ import { RiSearchEyeLine } from "react-icons/ri";
 import getAllPedidos from './function/getAllPedidos';
 import { AiOutlineQrcode } from "react-icons/ai";
 import { RiMailSendFill } from "react-icons/ri";
+import { MdOutlineCancel } from "react-icons/md";
 import { ModalQr } from './components/Mdals/ModalQr';
+import { updateDoc, doc } from 'firebase/firestore';
+import { db } from '../../../../Firebase';
+import { eliminar } from './function/eliminar';
+import filtrarPedido from './function/filtrarPedido';
 
 export const Admin = () => {
 
@@ -13,7 +18,7 @@ export const Admin = () => {
 
   const [isModalQr, setIsModalQr] = React.useState(false);
 
-  const [emailUser, setEmailUser] = React.useState('')
+  const [idUser, setEmailUser] = React.useState('')
 
   function actualizaEstadoPedidos(){
     //getAllPedidos()
@@ -22,23 +27,41 @@ export const Admin = () => {
     });
   }
 
+  async function busquedaPedido (e) {
+    e.preventDefault();
+    const busqueda = e.target.busqueda.value;
+    const newDocus = await filtrarPedido(busqueda);
+    setpedidos(newDocus);
+  } 
+
+  const enviarPedido = async (id) => {
+    const docRef = doc(db, "pedidos", id);
+    await updateDoc(docRef, {
+        status: 'enviado'
+    })
+}
+
   React.useEffect(() => {
     actualizaEstadoPedidos();
   }, [])
 
   return (
     <Container>
-      <ModalQr isModalQr={isModalQr} setIsModalQr={setIsModalQr} emailUser={emailUser}/>
-      <Form>
+      <ModalQr isModalQr={isModalQr} setIsModalQr={setIsModalQr} idUser={idUser} actualizaEstadoPedidos={actualizaEstadoPedidos}/>
+      <Form onSubmit={busquedaPedido}>
         <Stack direction='horizontal'>
           <InputGroup controlId='busqueda' className='w-75 m-3' size='lg'>
-          <InputGroup.Text id="basic-addon1"><RiSearchEyeLine/></InputGroup.Text>
-            <Form.Control type='text' placeholder='Buscar'/>
+          <InputGroup.Text><RiSearchEyeLine/></InputGroup.Text>
+            <Form.Control id='busqueda' type='text' placeholder='Buscar'/>
           </InputGroup>
           <Button variant="outline-success" type='submit'>
             Buscar
           </Button>
-          <Button className='mx-3' variant="outline-danger">Borrar</Button>
+          <Button className='mx-3' variant="outline-danger" onClick={() => {
+            const input = document.getElementById("busqueda");
+            input.value = "";
+            actualizaEstadoPedidos();
+          }}>Borrar</Button>
         </Stack>
       </Form>
 
@@ -67,8 +90,14 @@ export const Admin = () => {
             <td>{pedidos.bodega}</td>
             <td>{pedidos.status}</td>
             <td>
-              <Button onClick={() => {setIsModalQr(!isModalQr); setEmailUser(pedidos)}} className='mx-2' variant='info'><AiOutlineQrcode/></Button>
-              <Button variant='success'><RiMailSendFill/></Button>
+              {pedidos.status === 'pendiente' ? <Button onClick={() => {setIsModalQr(!isModalQr); setEmailUser(pedidos.id)}} variant='info'><AiOutlineQrcode/></Button> : null}
+              {pedidos.status === 'proceso' ? <Button variant='success' onClick={() => {enviarPedido(pedidos.id); actualizaEstadoPedidos();}}><RiMailSendFill/></Button> : null}
+              <Button variant='danger' onClick={() => {
+                eliminar(pedidos.id).then(confirmacion => {
+                  actualizaEstadoPedidos();
+                });
+                }} className='mx-2'><MdOutlineCancel/></Button>
+              
             </td>
           </tr>
         ))}

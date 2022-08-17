@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 //import { collection, addDoc } from "firebase/firestore";
 import { db } from "../Firebase";
 
@@ -11,8 +11,18 @@ export const useForm = (inicialForm, validateForm) => {
     console.log(pedidoObject);
     await setDoc(newPedidos, pedidoObject);
     //no await addDoc(collection(db, "pedidos"), {pedidoObject});
-    console.log("Nuevo pedido agregado");
+    console.log(newPedidos.id);
+    ingrsarid(newPedidos.id);
+   
+
   };
+
+  const ingrsarid = async (idpedido) =>{
+    const newId = doc(db, "pedidos", idpedido);
+    await updateDoc (newId, {
+        id: idpedido
+    }) 
+  } 
 
     const [form, setForm] = useState(inicialForm);
 

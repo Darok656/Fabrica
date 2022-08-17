@@ -5,10 +5,11 @@ import { AiOutlineClose, AiOutlineQrcode } from "react-icons/ai";
 import { generarCode } from '../../function/generarCode';
 import './modal.css';
 import QRCode from "qrcode";
-import { database } from '../../../../../../Firebase';
+import { database, db } from '../../../../../../Firebase';
 import { ref, set } from "firebase/database";
+import { updateDoc, doc } from 'firebase/firestore';
 
-export const ModalQr = ({ isModalQr, setIsModalQr, emailUser }) => {
+export const ModalQr = ({ isModalQr, setIsModalQr, idUser, actualizaEstadoPedidos }) => {
 
     const [code, cambiaCode] = useState('');
     const [imageUrl, setImageUrl] = useState('');
@@ -21,8 +22,9 @@ export const ModalQr = ({ isModalQr, setIsModalQr, emailUser }) => {
         try {
             const response = await QRCode.toDataURL(code);
             setImageUrl(response);
-            //addMaquina(code);
-            console.log(emailUser);
+            addMaquina(code);
+            console.log(idUser);
+            actulizaStatus(idUser);
         } catch (error) {
             console.log(error);
         }
@@ -36,6 +38,13 @@ export const ModalQr = ({ isModalQr, setIsModalQr, emailUser }) => {
         })
     }
 
+    const actulizaStatus = async (id) => {
+        const docRef = doc(db, "pedidos", id);
+        await updateDoc(docRef, {
+            status: 'proceso'
+        })
+    }
+
     return (
         <React.Fragment>
             {isModalQr && (
@@ -45,7 +54,7 @@ export const ModalQr = ({ isModalQr, setIsModalQr, emailUser }) => {
                             <h3>Crear el QR</h3>
                         </div>
                         <Button
-                            onClick={() => {setIsModalQr(false); cambiaCode(''); setImageUrl('')}}
+                            onClick={() => {setIsModalQr(false); cambiaCode(''); setImageUrl(''); actualizaEstadoPedidos();}}
                             className="close"
                             variant="outline-danger"
                         >
