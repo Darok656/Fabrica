@@ -1,0 +1,14 @@
+hr {
+    color: #5172ff;
+    background-color: #5172ff;
+    height: 4px;
+    border: 4px #5172ff solid !important;
+    border-radius: 2px;
+  }
+
+.conter {
+    display: flex;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    height: 30px;
+}

@@ -1,0 +1,31 @@
+.cover-container {
+    height: 100vh;
+    width: 100%;
+    object-fit: contain;
+    box-shadow: inset 0 0 0 1000px rgba(225, 224, 224, 0.4);
+    display: flex;
+    align-items: center;
+}
+
+.video {
+    object-fit: cover;
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    z-index: -1;
+}
+
+.imgL {
+    position: relative;
+    height: 150px;
+    left: -75px;
+}
+
+.dialogo {
+    padding: 13%;
+    justify-content: center;
+}
+
+.dialogo > h2 {
+    font-size: 53px;
+}
